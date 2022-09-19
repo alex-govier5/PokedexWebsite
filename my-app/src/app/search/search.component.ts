@@ -1,4 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import RenderResult from 'next/dist/server/render-result';
+import fetch from 'node-fetch'
+import { PokemonClient } from 'pokenode-ts'
+import { MainClient } from 'pokenode-ts'
+import { elementAt } from 'rxjs';
+import { provideCloudflareLoader } from '@angular/common';
+import { Data } from '@angular/router';
 
 @Component({
   selector: 'app-search',
@@ -7,15 +15,48 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SearchComponent implements OnInit {
 
-  constructor() { }
-  
-  getPokemon(){
-    const searchButton = document.getElementById('btn')
-    const inputValue = (<HTMLInputElement>document.getElementById('search')).value;
-    searchButton?.addEventListener('click', function handleClick(event) {
-      console.log(inputValue)
+  repos: any;
+  constructor(http:HttpClient) { 
+    const inp = document.getElementById('search')
+    inp?.addEventListener("keypress",function(event){
+      if(event.key == "Enter"){
+        event.preventDefault()
+        document.getElementById('btn')?.click()
+      }
     })
+
+    
+    
   }
+
+  
+  onKeydown(event:Event){
+      document.getElementById('btn')?.click()
+    
+  }
+
+  async setInfo() {
+    const input = document.getElementById('search') as HTMLInputElement
+    const name = input.value.trim().toLowerCase()
+    const divy = document.getElementById('result')
+    const pic = document.getElementById('picture')
+    input.value = ''
+    const api = new PokemonClient({cacheOptions:{maxAge:60000, exclude: {query: false}},})
+    await api
+      .getPokemonByName(name)
+      .then((data) => divy!.textContent=data.name.toUpperCase())
+      .catch((error) => divy!.textContent="Sorry, your search yielded no results, try again")
+
+    const api2 = new PokemonClient({cacheOptions:{maxAge:60000, exclude: {query: false}},})
+
+    await api2
+      .getPokemonByName(name)
+      .then((data)=>pic!.style.backgroundImage="url(https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+data.id+".png)")
+      .catch((error)=>pic!.style.backgroundImage="url(/assets/pokeball.jpg)")
+    
+  }
+
+
 
   ngOnInit(): void {
   }
