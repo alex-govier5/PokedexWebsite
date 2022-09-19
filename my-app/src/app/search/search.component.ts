@@ -7,6 +7,9 @@ import { MainClient } from 'pokenode-ts'
 import { elementAt } from 'rxjs';
 import { provideCloudflareLoader } from '@angular/common';
 import { Data } from '@angular/router';
+import { map, startWith } from 'rxjs/operators';
+
+const CACHE_KEY = "httpPokemonCache"
 
 @Component({
   selector: 'app-search',
@@ -15,7 +18,9 @@ import { Data } from '@angular/router';
 })
 export class SearchComponent implements OnInit {
 
-  repos: any;
+  pokemons:any
+  
+
   constructor(http:HttpClient) { 
     const inp = document.getElementById('search')
     inp?.addEventListener("keypress",function(event){
@@ -25,8 +30,19 @@ export class SearchComponent implements OnInit {
       }
     })
 
-    
-    
+    const path = "https://pokeapi.co/api/v2/pokemon?limit=10000&offset=0"
+    this.pokemons = http.get<any>(path)
+      .pipe(
+        map(data=>data.results)
+        )
+    this.pokemons.subscribe((next: any)=>{
+      localStorage[CACHE_KEY] = JSON.stringify(next)
+    })
+
+    this.pokemons = this.pokemons.pipe(
+      startWith(JSON.parse(localStorage[CACHE_KEY] || '[]'))
+    )
+      
   }
 
   
@@ -55,9 +71,6 @@ export class SearchComponent implements OnInit {
       .catch((error)=>pic!.style.backgroundImage="url(/assets/pokeball.jpg)")
     
   }
-
-
-
   ngOnInit(): void {
   }
 
