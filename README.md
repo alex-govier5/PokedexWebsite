@@ -1,7 +1,7 @@
 # OutStem Front-End Challenge:
-##Pokedex Application
+## Pokedex Application
 
-###I have created a Pokedex application using Typescript, Angular, HTML and CSS.
+### I have created a Pokedex application using Typescript, Angular, HTML and CSS.
 
 You are able to search any pokemon and will receive their name and image. This application uses the pokeapi.
 
